@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Registrering og Visning</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="registrationContainer">
+        <h2>Data Registrering</h2>
+        <form id="dataForm">
+            <div class="form-group">
+                <label for="datetime">Dato og tid</label>
+                <input type="datetime-local" id="datetime" name="datetime">
+            </div>
+            <div class="form-group">
+                <label for="registrant">Registrant (navn på person)</label>
+                <input type="text" id="registrant" name="registrant">
+            </div>
+            <div class="form-group">
+                <label for="shift">Skiftehold</label>
+                <select id="shift" name="shift">
+                    <option value="dag">Dag</option>
+                    <option value="nat">Nat</option>
+                    <option value="aften">Aften</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="machine">Maskine nummer</label>
+                <input type="text" id="machine" name="machine">
+            </div>
+            <div class="form-group">
+                <label for="woolcode">Uldkode</label>
+                <input type="text" id="woolcode" name="woolcode">
+            </div>
+            <div class="form-group">
+                <label for="quantity">Antal styk</label>
+                <input type="number" id="quantity" name="quantity">
+            </div>
+            <div class="form-group">
+                <label for="thickness">Tykkelse</label>
+                <input type="text" id="thickness" name="thickness">
+            </div>
+            <div class="form-group">
+                <label for="tolerance">Tolerance og korrektion</label>
+                <input type="text" id="tolerance" name="tolerance">
+            </div>
+            <div class="form-group">
+                <label for="type">Plader eller kiler</label>
+                <select id="type" name="type">
+                    <option value="plader">Plader</option>
+                    <option value="kiler">Kiler</option>
+                </select>
+            </div>
+            <button type="submit">Registrer</button>
+        </form>
+        <button onclick="showData()">Se Data</button>
+    </div>
+
+    <div class="container hidden" id="dataContainer">
+        <h2>Registreret Data</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Dato og tid</th>
+                    <th>Registrant</th>
+                    <th>Skiftehold</th>
+                    <th>Maskine nummer</th>
+                    <th>Uldkode</th>
+                    <th>Antal styk</th>
+                    <th>Tykkelse</th>
+                    <th>Tolerance og korrektion</th>
+                    <th>Plader eller kiler</th>
+                </tr>
+            </thead>
+            <tbody id="dataBody">
+            </tbody>
+        </table>
+        <button onclick="showRegistration()">Tilbage til Registrering</button>
+    </div>
+
+    <script>
+        document.getElementById('dataForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let data = {
+                datetime: document.getElementById('datetime').value,
+                registrant: document.getElementById('registrant').value,
+                shift: document.getElementById('shift').value,
+                machine: document.getElementById('machine').value,
+                woolcode: document.getElementById('woolcode').value,
+                quantity: document.getElementById('quantity').value,
+                thickness: document.getElementById('thickness').value,
+                tolerance: document.getElementById('tolerance').value,
+                type: document.getElementById('type').value
+            };
+            let dataList = JSON.parse(localStorage.getItem('dataList')) || [];
+            dataList.push(data);
+            localStorage.setItem('dataList', JSON.stringify(dataList));
+            alert('Data registreret!');
+            document.getElementById('dataForm').reset();
+        });
+
+        function showData() {
+            document.getElementById('registrationContainer').classList.add('hidden');
+            document.getElementById('dataContainer').classList.remove('hidden');
+            let dataList = JSON.parse(localStorage.getItem('dataList')) || [];
+            let dataBody = document.getElementById('dataBody');
+            dataBody.innerHTML = '';
+            dataList.forEach(function(data) {
+                let row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${data.datetime}</td>
+                    <td>${data.registrant}</td>
+                    <td>${data.shift}</td>
+                    <td>${data.machine}</td>
+                    <td>${data.woolcode}</td>
+                    <td>${data.quantity}</td>
+                    <td>${data.thickness}</td>
+                    <td>${data.tolerance}</td>
+                    <td>${data.type}</td>
+                `;
+                dataBody.appendChild(row);
+            });
+        }
+
+        function showRegistration() {
+            document.getElementById('dataContainer').classList.add('hidden');
+            document.getElementById('registrationContainer').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

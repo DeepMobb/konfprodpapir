@@ -3,192 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Registrering og Visning</title>
+    <title>Registreringsapp</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
+            margin: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 600px;
             margin: auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        .form-group {
-            margin-bottom: 15px;
         }
         label {
             display: block;
-            margin-bottom: 5px;
-            color: #333;
+            margin-top: 10px;
         }
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            margin-top: 5px;
         }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .hidden {
-            display: none;
+        @media (min-width: 768px) {
+            .container {
+                max-width: 800px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container" id="registrationContainer">
-        <h2>Data Registrering</h2>
-        <form id="dataForm">
-            <div class="form-group">
-                <label for="datetime">Dato og tid</label>
-                <input type="datetime-local" id="datetime" name="datetime">
-            </div>
-            <div class="form-group">
-                <label for="registrant">Registrant (navn på person)</label>
-                <input type="text" id="registrant" name="registrant">
-            </div>
-            <div class="form-group">
-                <label for="shift">Skiftehold</label>
-                <select id="shift" name="shift">
-                    <option value="dag">Dag</option>
-                    <option value="nat">Nat</option>
-                    <option value="aften">Aften</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="machine">Maskine nummer</label>
-                <input type="text" id="machine" name="machine">
-            </div>
-            <div class="form-group">
-                <label for="woolcode">Uldkode</label>
-                <input type="text" id="woolcode" name="woolcode">
-            </div>
-            <div class="form-group">
-                <label for="quantity">Antal styk</label>
-                <input type="number" id="quantity" name="quantity">
-            </div>
-            <div class="form-group">
-                <label for="thickness">Tykkelse</label>
-                <input type="text" id="thickness" name="thickness">
-            </div>
-            <div class="form-group">
-                <label for="tolerance">Tolerance og korrektion</label>
-                <input type="text" id="tolerance" name="tolerance">
-            </div>
-            <div class="form-group">
-                <label for="type">Plader eller kiler</label>
-                <select id="type" name="type">
-                    <option value="plader">Plader</option>
-                    <option value="kiler">Kiler</option>
-                </select>
-            </div>
-            <button type="submit">Registrer</button>
-        </form>
-        <button onclick="showData()">Se Data</button>
-    </div>
+    <div class="container">
+        <h1>Registreringsapp</h1>
+ <form method="POST" action="https://script.google.com/macros/s/AKfycbwUmBICOrHYZz8YRxdGucFiBCk5fIFgP35QfXAdh9wOMAQMvkfoZ43OeLSa4YPw_IW8yQ/exec">
+        <form id="registrationForm">
+ 
+            <label for="materialNumber">Materiale nummer:</label>
+            <select id="materialNumber" name="materialNumber" onchange="updateBudget()">
+                <option value="82008">82008</option>
+                <option value="346409">346409</option>
+                <option value="82027">82027</option>
+                <option value="82028">82028</option>
+                <option value="82023">82023</option>
+                <option value="82022">82022</option>
+                <option value="82024">82024</option>
+                <option value="82018">82018</option>
+                <option value="82017">82017</option>
+                <option value="82019">82019</option>
+                <option value="82009">82009</option>
+                <option value="82010">82010</option>
+                <option value="82011">82011</option>
+                <option value="82012">82012</option>
+                <option value="82013">82013</option>
+                <option value="82014">82014</option>
+                <option value="82015">82015</option>
+                <option value="82016">82016</option>
+            </select>
 
-    <div class="container hidden" id="dataContainer">
-        <h2>Registreret Data</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Dato og tid</th>
-                    <th>Registrant</th>
-                    <th>Skiftehold</th>
-                    <th>Maskine nummer</th>
-                    <th>Uldkode</th>
-                    <th>Antal styk</th>
-                    <th>Tykkelse</th>
-                    <th>Tolerance og korrektion</th>
-                    <th>Plader eller kiler</th>
-                </tr>
-            </thead>
-            <tbody id="dataBody">
-            </tbody>
-        </table>
-        <button onclick="showRegistration()">Tilbage til Registrering</button>
+            <label for="budget">Budgettal (stk. per time):</label>
+            <input type="text" id="budget" name="budget" readonly>
+
+            <label for="dateTime">Tid og dato:</label>
+            <input type="datetime-local" id="dateTime" name="dateTime">
+
+            <label for="name">Navn:</label>
+            <input type="text" id="name" name="name">
+
+            <label for="shift">Skiftehold:</label>
+            <select id="shift" name="shift">
+                <option value="dag">Dag</option>
+                <option value="aften">Aften</option>
+                <option value="nat">Nat</option>
+            </select>
+
+            <label for="productsProduced">Antal produkter produceret:</label>
+            <input type="number" id="productsProduced" name="productsProduced">
+
+            <label for="remarks">Bemærkninger:</label>
+            <textarea id="remarks" name="remarks"></textarea>
+
+            <button type="submit">Indsend</button>
+        </form>
     </div>
 
     <script>
-        document.getElementById('dataForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            let data = {
-                datetime: document.getElementById('datetime').value,
-                registrant: document.getElementById('registrant').value,
-                shift: document.getElementById('shift').value,
-                machine: document.getElementById('machine').value,
-                woolcode: document.getElementById('woolcode').value,
-                quantity: document.getElementById('quantity').value,
-                thickness: document.getElementById('thickness').value,
-                tolerance: document.getElementById('tolerance').value,
-                type: document.getElementById('type').value
-            };
-            let dataList = JSON.parse(localStorage.getItem('dataList')) || [];
-            dataList.push(data);
-            localStorage.setItem('dataList', JSON.stringify(dataList));
-            alert('Data registreret!');
-            document.getElementById('dataForm').reset();
-        });
+        // Budget data for each material number
+        const budgetData = {
+            "82008": 178,
+            "346409": 257,
+            "82027": 436,
+            "82028": 377,
+            "82023": 349,
+            "82022": 196,
+            "82024": 119,
+            "82018": 219,
+            "82017": 339,
+            "82019": 114,
+            "82009": 191,
+            "82010": 162,
+            "82011": 152,
+            "82012": 130,
+            "82013": 124,
+            "82014": 112,
+            "82015": 118,
+            "82016": 99
+        };
 
-        function showData() {
-            document.getElementById('registrationContainer').classList.add('hidden');
-            document.getElementById('dataContainer').classList.remove('hidden');
-            let dataList = JSON.parse(localStorage.getItem('dataList')) || [];
-            let dataBody = document.getElementById('dataBody');
-            dataBody.innerHTML = '';
-            dataList.forEach(function(data) {
-                let row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${data.datetime}</td>
-                    <td>${data.registrant}</td>
-                    <td>${data.shift}</td>
-                    <td>${data.machine}</td>
-                    <td>${data.woolcode}</td>
-                    <td>${data.quantity}</td>
-                    <td>${data.thickness}</td>
-                    <td>${data.tolerance}</td>
-                    <td>${data.type}</td>
-                `;
-                dataBody.appendChild(row);
-            });
-        }
-
-        function showRegistration() {
-            document.getElementById('dataContainer').classList.add('hidden');
-            document.getElementById('registrationContainer').classList.remove('hidden');
+        function updateBudget() {
+            const materialNumber = document.getElementById('materialNumber').value;
+            const budgetInput = document.getElementById('budget');
+            budgetInput.value = budgetData[materialNumber] || '';
         }
     </script>
+       
 </body>
 </html>

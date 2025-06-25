@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Produktionsdata Registrering</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            max-width: 520px;
+            margin: 40px auto;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.09);
+        }
+        h2 {
+            color: #BE1E2D;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 7px;
+            color: #333;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 7px 10px;
+            margin-bottom: 18px;
+            border: 1px solid #d4d4d4;
+            border-radius: 4px;
+            font-size: 15px;
+            background-color: #fdf6f6;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 50px;
+        }
+        button {
+            background-color: #BE1E2D;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 0;
+            font-size: 16px;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
+        button:hover {
+            background-color: #a21824;
+        }
+        #graf-container {
+            background: #f5eded;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 12px rgba(190,30,45,0.07);
+        }
+        .plusminus-input {
+            display: flex;
+            align-items: center;
+        }
+        .plusminus-input input[type="number"] {
+            margin: 0 10px 0 0;
+            width: 80px;
+        }
+        .plusminus-input button {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            padding: 0;
+            font-size: 22px;
+            font-weight: bold;
+            background: #BE1E2D;
+            color: #fff;
+            border: none;
+            margin-right: 7px;
+        }
+        .plusminus-input button:last-child {
+            margin-right: 0;
+        }
+        #qr-reader {
+            width: 100%;
+            margin: 12px 0 20px 0;
+            display: none;
+        }
+        #qr-reader__dashboard_section_csr {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="graf-container">
+            <canvas id="stykPerTimeGraf" height="60"></canvas>
+        </div>
+        <h2>Produktionsdata Registrering</h2>
+        <button type="button" onclick="startQRScanner()">Scan QR-kode</button>
+        <div id="qr-reader"></div>
+        <form>
+            <label for="planordre">Planordre nr.</label>
+            <input type="text" id="planordre" name="planordre" required>
+
+            <label for="frakl">Fra kl.</label>
+            <input type="time" id="frakl" name="frakl" required>
+
+            <label for="tilkl">Til kl.</label>
+            <input type="time" id="tilkl" name="tilkl" required>
+
+            <label for="materialeNummer">Materiale nummer</label>
+            <input type="text" id="materialeNummer" name="materialeNummer" required>
+
+            <label for="laengde">Længde (mm)</label>
+            <input type="number" id="laengde" name="laengde" required>
+
+            <label for="bredde">Bredde (mm)</label>
+            <input type="number" id="bredde" name="bredde" required>
+
+            <label for="tykkelse">Tykkelse (mm)</label>
+            <input type="number" id="tykkelse" name="tykkelse" required>
+
+            <label for="stykPerTime">Styk per time</label>
+            <input type="number" id="stykPerTime" name="stykPerTime" min="0" max="200" value="0" required>
+
+            <label for="omstillingstid">Omstillingstid (min)</label>
+            <div class="plusminus-input">
+                <input type="number" id="omstillingstid" name="omstillingstid" min="0" max="240" value="0" step="1">
+                <button type="button" onclick="plusMinusOmstilling(1)">+</button>
+                <button type="button" onclick="plusMinusOmstilling(-1)">-</button>
+            </div>
+
+            <label for="klargoeringstid">Klargøringstid (min)</label>
+            <input type="number" id="klargoeringstid" name="klargoeringstid" min="0" required>
+
+            <label for="antalMK">Antal M/K</label>
+            <input type="number" id="antalMK" name="antalMK" min="0" required>
+
+            <label for="antalUnits">Antal units</label>
+            <input type="number" id="antalUnits" name="antalUnits" min="0" required>
+
+            <label for="antalRoerPerKasse">Antal rør per kasse</label>
+            <input type="number" id="antalRoerPerKasse" name="antalRoerPerKasse" min="0" required>
+
+            <label for="registreringSAP">Registrering i SAP</label>
+            <textarea id="registreringSAP" name="registreringSAP" placeholder="Evt. bemærkninger"></textarea>
+
+            <button type="submit">Indsend</button>
+        </form>
+    </div>
+    <script>
+        // Søjlediagram for styk per time vs. gennemsnit
+        const ctx = document.getElementById('stykPerTimeGraf').getContext('2d');
+        let userValue = 0;
+        let chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Styk/time', 'Gns. (52)'],
+                datasets: [{
+                    label: 'Antal',
+                    data: [userValue, 52],
+                    backgroundColor: [
+                        '#BE1E2D',
+                        '#555'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { 
+                        callbacks: {
+                            label: function(ctx) { return ctx.dataset.data[ctx.dataIndex] + ' styk'; }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: 100
+                    }
+                }
+            }
+        });
+
+        document.getElementById('stykPerTime').addEventListener('input', function() {
+            let userVal = parseInt(this.value) || 0;
+            chart.data.datasets[0].data[0] = userVal;
+            chart.update();
+        });
+
+        function plusMinusOmstilling(dir) {
+            const omtInput = document.getElementById('omstillingstid');
+            let value = parseInt(omtInput.value) || 0;
+            value += dir;
+            if (value < parseInt(omtInput.min)) value = parseInt(omtInput.min);
+            if (value > parseInt(omtInput.max)) value = parseInt(omtInput.max);
+            omtInput.value = value;
+        }
+
+        // QR scanner integration
+        let html5QrCode;
+        function startQRScanner() {
+            const qrRegion = document.getElementById('qr-reader');
+            qrRegion.style.display = 'block';
+
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("qr-reader");
+            }
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 200 },
+                qrCodeMessage => {
+                    // Forventet format: planordre;materiale;laengde;bredde;tykkelse
+                    let parts = qrCodeMessage.trim().split(';');
+                    if(parts.length >= 5) {
+                        document.getElementById('planordre').value = parts[0];
+                        document.getElementById('materialeNummer').value = parts[1];
+                        document.getElementById('laengde').value = parts[2];
+                        document.getElementById('bredde').value = parts[3];
+                        document.getElementById('tykkelse').value = parts[4];
+                        alert("Data scannet og udfyldt.");
+                        html5QrCode.stop().then(() => {
+                            qrRegion.style.display = 'none';
+                        });
+                    } else {
+                        alert("Ugyldigt format i QR/Barcode. Forventet format: planordre;materiale;laengde;bredde;tykkelse");
+                    }
+                },
+                errorMessage => { /* Ignorer fejl ved scanning */ }
+            ).catch(err => {
+                alert('Kunne ikke åbne kamera: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>
